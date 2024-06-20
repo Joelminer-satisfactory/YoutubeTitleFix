@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "fix youtube titles",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "changes youtube video titles to sentence case",
   "homepage_url": "https://www.youtube.com/",
   "icons": {
@@ -16,7 +16,7 @@
   },
   "content_scripts" : [
     {
-      "matches": ["https://www.youtube.com/*"],
+      "matches": ["https://*.youtube.com/*"],
       "js": ["fix_titles.js"]
     }
   ]
