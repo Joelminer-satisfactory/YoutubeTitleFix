@@ -18,9 +18,11 @@
                 if (indexOfBy !== -1){
                     let trimmedAriaLabel = ariaLabel.substring(0, indexOfBy);
                     let newTitle = trimmedAriaLabel.toLowerCase();
+                    var rg = /(^\s*\w{1}|\.\s*\w{1})/gi;
+                    newTitle = newTitle.replace(rg, function(toReplace) {
+                        return toReplace.toUpperCase();
+                    });
                     element.textContent = newTitle;
-                    console.log('%c Original: ' + trimmedAriaLabel, 'color: red')
-                    console.log('%c Modified: ' + newTitle, 'color: green')
                 }
             }
         });
