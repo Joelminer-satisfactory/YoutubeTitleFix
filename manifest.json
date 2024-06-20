@@ -5,7 +5,7 @@
   "description": "changes youtube video titles to lower case",
   "homepage_url": "https://www.youtube.com/",
   "icons": {
-    "48": "icons/icon.png"
+    "90": "icons/icon.png"
   },
   "permissions": [
     "activeTab"
