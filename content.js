@@ -10,7 +10,8 @@ browser.runtime.onMessage.addListener((request) => {
 const targetNode = document.querySelector("body");
 const config = { attributes: false, childList: true, subtree: true };
 
-const modify_titles = (mutationlist, observer) => {
+const modify_titles = async (mutationlist, observer) => {
+    console.info("modifying titles")
     let videoTitles = [];
     let selectors = [
         "yt-formatted-string#video-title", 
@@ -21,9 +22,8 @@ const modify_titles = (mutationlist, observer) => {
     selectors.forEach((selector) => {
         let elements = document.querySelectorAll(selector);
         elements.forEach((el) => {videoTitles.push(el)})
-    })
-    
-    observer.disconnect()
+    });
+    observer.disconnect();
     // Modify the text content of each element
     videoTitles.forEach((element, index) => {
         if (element.hasAttribute("aria-label")){
@@ -49,9 +49,13 @@ const modify_titles = (mutationlist, observer) => {
             element.textContent = newTitle;
         }
     });
-    observer.observe(targetNode, config)
+    await sleep(1000);
+    observer.observe(targetNode, config);
 };
 let future_observer;
 const observer = new MutationObserver(modify_titles, future_observer);
 future_observer = observer;
 observer.observe(targetNode, config)
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
