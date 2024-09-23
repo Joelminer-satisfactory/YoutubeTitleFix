@@ -17,7 +17,10 @@ try{
                     browser.tabs.update(tabId, {url: tabs[0].url})
                 }
                 browser.tabs.executeScript(tabId, { file: "content.js" });
-        })};
+        })}
+        else{
+            console.info("script paused, not triggering")
+        };
     })
     browser.webNavigation.onCompleted.addListener(() => {
         isPaused = false;
