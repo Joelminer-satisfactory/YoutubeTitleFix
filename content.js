@@ -1,8 +1,10 @@
-browser.runtime.onMessage.addListener((request) => {
+let currentWindowUrl;
+browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log("Received message:", request);
     if (request.message === "terminate"){
         console.log("Content script terminating");
-        
+        sendResponse({response: currentWindowUrl})
+        return true
         throw new Error("Termination requested");
     }
 });
@@ -23,7 +25,12 @@ const modify_titles = async (mutationlist, observer) => {
         elements.forEach((el) => {videoTitles.push(el)})
     });
     let element = document.querySelector("div#title.style-scope.ytd-watch-metadata")
-    element.style.display = 'none'
+    try{
+        element.style.display = 'none'
+    }
+    catch (error){
+        console.log(error.message)
+    }
     observer.disconnect();
     //get and display the title on a video page
     let url = window.location.href;
@@ -91,6 +98,7 @@ const observer = new MutationObserver(modify_titles, future_observer);
 future_observer = observer;
 observer.observe(targetNode, config)
 console.log("script inserted, started observing for changes")
+currentWindowUrl = window.location.href
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
