@@ -1,6 +1,7 @@
 browser.tabs.onUpdated.addListener(updateHandler)
 let isPaused = false
 let isAwaitingRequest = false;
+let recievedResponse = false;
 async function updateHandler(tabId, changeInfo, changedTab){
     if (isPaused){
         return
@@ -10,12 +11,15 @@ async function updateHandler(tabId, changeInfo, changedTab){
         console.log("TabId: ", tabId, "Change info: ", changeInfo, "New status: ", changedTab.status)
         let urlBeforeNav;
         browser.tabs.query({ active: true, currentWindow: true }).then(async tabs => {
-            const tabId = tabs[0].id;
+            
             console.log("Tab ID:", tabId, "sending termination message")
-            browser.tabs.sendMessage(tabId, { message: "terminate" }, (response) => {
-                urlBeforeNav = response.response
-                console.log("response: ", urlBeforeNav)
-            });
+            browser.tabs.sendMessage(tabId, { message: "terminate" })
+            browser.runtime.onMessage.addListener((request, sender, sendResponse) =>{
+                recievedResponse = true
+                urlBeforeNav = request.message
+            })
+            
+            // 
              //if actively awaiting request, stop awaiting and continue
             if(isAwaitingRequest){
                 isAwaitingRequest = false
@@ -32,7 +36,9 @@ async function updateHandler(tabId, changeInfo, changedTab){
                     return
                 }
             }
-            if (/.\.youtube\.com\/$/.test(changeInfo.url) || /.\.youtube\.com$/.test(changeInfo.url)){
+            await sleep(100)
+            console.log("Change: ", changeInfo.url, "Before: ", urlBeforeNav)
+            if (/.\.youtube\.com\/$/.test(changeInfo.url) && changeInfo.url === urlBeforeNav || /.\.youtube\.com$/.test(changeInfo.url) && changeInfo.url === urlBeforeNav){
                 console.log("reloading tab")
                 browser.tabs.update(tabId, {url: tabs[0].url})
             }

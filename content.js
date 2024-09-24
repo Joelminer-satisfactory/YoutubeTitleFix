@@ -3,9 +3,9 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log("Received message:", request);
     if (request.message === "terminate"){
         console.log("Content script terminating");
-        sendResponse({response: currentWindowUrl})
-        return true
-        throw new Error("Termination requested");
+        browser.runtime.sendMessage({message: currentWindowUrl})
+        console.log("sent message: ", currentWindowUrl)
+        throw new error("terminating")
     }
 });
 
@@ -99,6 +99,7 @@ future_observer = observer;
 observer.observe(targetNode, config)
 console.log("script inserted, started observing for changes")
 currentWindowUrl = window.location.href
+console.log("current window url: ", window.location.href)
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
