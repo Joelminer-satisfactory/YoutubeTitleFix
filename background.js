@@ -39,8 +39,11 @@ async function updateHandler(tabId, changeInfo, changedTab){
             await sleep(100)
             console.log("Current: ", changeInfo.url, "Previous: ", urlBeforeNav)
             if (/.\.youtube\.com\/$/.test(changeInfo.url)/* && changeInfo.url === urlBeforeNav*/ || /.\.youtube\.com$/.test(changeInfo.url)/* && changeInfo.url === urlBeforeNav*/){
-                console.log("reloading tab")
-                browser.tabs.update(tabId, {url: tabs[0].url})
+                if(changeInfo.url.indexOf("t=") === -1){
+                    console.log("reloading tab")
+                    browser.tabs.update(tabId, {url: tabs[0].url})
+                }
+                
             }
             
             console.info("inserting script")
