@@ -28,7 +28,7 @@ async function updateHandler(tabId, changeInfo, changedTab){
             if still awaiting after that, no longer wait and proceed. If no longer waiting, quit, because another request has come in shortly after*/
             else if(!isAwaitingRequest){
                 isAwaitingRequest = true
-                await sleep(1000)
+                await sleep(500)
                 if (isAwaitingRequest){
                     isAwaitingRequest = false
                 }
@@ -37,14 +37,16 @@ async function updateHandler(tabId, changeInfo, changedTab){
                 }
             }
             await sleep(100)
-            console.log("Change: ", changeInfo.url, "Before: ", urlBeforeNav)
-            if (/.\.youtube\.com\/$/.test(changeInfo.url) && changeInfo.url === urlBeforeNav || /.\.youtube\.com$/.test(changeInfo.url) && changeInfo.url === urlBeforeNav){
+            console.log("Current: ", changeInfo.url, "Previous: ", urlBeforeNav)
+            if (/.\.youtube\.com\/$/.test(changeInfo.url)/* && changeInfo.url === urlBeforeNav*/ || /.\.youtube\.com$/.test(changeInfo.url)/* && changeInfo.url === urlBeforeNav*/){
                 console.log("reloading tab")
                 browser.tabs.update(tabId, {url: tabs[0].url})
             }
             
             console.info("inserting script")
             browser.tabs.executeScript(tabId, { file: "content.js" });
+            // await sleep(100)
+            // browser.tabs.sendMessage(tabId, {message: "fetchUrl"})
         });
         
         isPaused = false

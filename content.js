@@ -7,6 +7,10 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
         console.log("sent message: ", currentWindowUrl)
         throw new error("terminating")
     }
+    else if(request.message === "fetchUrl"){
+        currentWindowUrl = window.location.href
+        console.log("Recieved, setting url to: ", currentWindowUrl)
+    }
 });
 
 const targetNode = document.querySelector("body");
