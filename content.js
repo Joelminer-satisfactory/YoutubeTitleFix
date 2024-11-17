@@ -28,12 +28,12 @@ const modify_titles = async (mutationlist, observer) => {
         let elements = document.querySelectorAll(selector);
         elements.forEach((el) => {videoTitles.push(el)})
     });
-    let element = document.querySelector("div#title.style-scope.ytd-watch-metadata")
+    let div = document.querySelector("div#title.style-scope.ytd-watch-metadata")
     try{
-        element.style.display = 'none'
+        div.style.display = 'none'
     }
     catch (error){
-        console.log(error.message)
+        console.warn(error.message)
     }
     observer.disconnect();
     //get and display the title on a video page
@@ -44,33 +44,65 @@ const modify_titles = async (mutationlist, observer) => {
         videoId = match[0];
     }
     if(/youtube\.com\/watch\?v=/.test(url)){
-        fetch(`https://www.youtube.com/oembed?url=https%3A//youtube.com/watch%3Fv%3D${videoId}&format=json`)
-            .then(response => response.json())
-            .then(data => {
-                let title = data.title
-                let newTitle = title.toLowerCase();
-                var rg = /(^\s*\w{1}|\.\s*\w{1})/gi;
-                newTitle = newTitle.replace(rg, function(toReplace) {
-                    return toReplace.toUpperCase();
-                });
-                if (!document.querySelector("div#titleDiv")){
-                    let element = document.querySelector("div#above-the-fold.style-scope.ytd-watch-metadata")
-                    let newDiv = document.createElement("div")
-                    newDiv.id = "titleDiv"
-                    let h1Element = document.createElement("h1")
-                    h1Element.textContent = newTitle
-                    h1Element.id = "titleH1"
-                    newDiv.appendChild(h1Element)
-                    element.insertBefore(newDiv, element.firstChild)
-                }
-                let element = document.querySelector("h1#titleH1")
-                if (element.textContent != newTitle){
-                    element.textContent = newTitle
-                }
-            })
+        try{
+            fetch(`https://www.youtube.com/oembed?url=https%3A//youtube.com/watch%3Fv%3D${videoId}&format=json`)
+                .then(response => response.json())
+                .then(data => {
+                    let title = data.title
+                    let newTitle = title.toLowerCase();
+                    var rg = /(^\s*\w{1}|\.\s*\w{1})/gi;
+                    newTitle = newTitle.replace(rg, function(toReplace) {
+                        return toReplace.toUpperCase();
+                    });
+                    if (!document.querySelector("div#titleDiv")){
+                        let element = document.querySelector("div#above-the-fold.style-scope.ytd-watch-metadata")
+                        let newDiv = document.createElement("div")
+                        newDiv.id = "titleDiv"
+                        let h1Element = document.createElement("h1")
+                        h1Element.textContent = newTitle
+                        h1Element.id = "titleH1"
+                        newDiv.appendChild(h1Element)
+                        element.insertBefore(newDiv, element.firstChild)
+                    }
+                    let element = document.querySelector("h1#titleH1")
+                    if (element.textContent != newTitle){
+                        element.textContent = newTitle
+                    }
+                })
+        }
+        catch(error){
+            console.warn(error.message)
+        }
     }
     // Modify the text content of each element
-    videoTitles.forEach((element, index) => {
+    for (let i = 0; i < videoTitles.length; i++){
+        const element = videoTitles[i];
+        let parentElement = element.parentElement;
+        if (element === null || parentElement === null){
+            continue
+        }
+        let isDescription = false
+        
+        while(parentElement.nodeName !== 'body'){
+            if (parentElement.id === 'description'){
+                isDescription = true;
+                break;
+            }
+            
+            if (parentElement.className === "expandable-video-description-container"){
+                isDescription = true;
+                break;
+            }
+            parentElement = parentElement.parentElement;
+            if(parentElement === null){
+                break
+            }
+        }
+        if(isDescription === true){
+            
+            continue
+        }
+        element.classList.add("yt-titlefix-affected")
         if (element.hasAttribute("aria-label")){
             let ariaLabel = element.getAttribute("aria-label");
             let indexOfBy = ariaLabel.indexOf(" by");
@@ -93,7 +125,7 @@ const modify_titles = async (mutationlist, observer) => {
             });
             element.textContent = newTitle;
         }
-    });
+    };
     await sleep(1000);
     observer.observe(targetNode, config);
 };
